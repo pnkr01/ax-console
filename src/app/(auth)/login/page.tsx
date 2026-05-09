@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useForm, UseFormRegister, FieldValues, Path } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
 import { loginSchema, LoginInput } from "@/shared/lib/schemas";
-import { Activity, ShieldCheck, Zap, Globe } from "lucide-react";
+import { Activity, ShieldCheck, Zap, Globe, AlertCircle } from "lucide-react";
 import apiClient from "@/core/api/client";
+import { Input } from "@/shared/components/ui/Input";
+import { Button } from "@/shared/components/ui/Button";
 
 export default function LoginPage() {
   const { 
@@ -20,10 +22,14 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginInput) => {
     try {
-      await apiClient.post("/auth/login", data);
-      
-      // Hard reload ensures the cookie is instantly recognized by the middleware
-      window.location.assign("/onboarding/setup");
+      const response = await apiClient.post("/auth/login", data);
+      const tenantSlug = response.data.tenant_slug;
+
+      if (tenantSlug) {
+        window.location.assign(`/dashboard/${tenantSlug}/overview`);
+      } else {
+        window.location.assign("/onboarding/setup");
+      }
     } catch (err: unknown) {
       let errorMessage = "An unexpected error occurred.";
       if (isAxiosError(err)) {
@@ -34,68 +40,72 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-slate-50">
       {/* Left Side: Splash Screen */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 p-12 flex-col justify-between text-white">
+      <div className="hidden lg:flex w-1/2 bg-slate-900 p-12 flex-col justify-between text-white border-r border-slate-800">
         <div>
-          <div className="flex items-center gap-2 mb-8">
-            <Activity className="w-8 h-8 text-blue-500" />
+          <div className="flex items-center gap-3 mb-10">
+            <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Activity className="w-8 h-8 text-blue-500" />
+            </div>
             <span className="text-2xl font-bold tracking-tight">AX Analytics</span>
           </div>
-          <h1 className="text-5xl font-bold leading-tight mb-6">
+          <h1 className="text-5xl font-bold leading-tight mb-8">
             Welcome back to <br /> <span className="text-blue-500">Mission Control.</span>
           </h1>
-          <div className="space-y-6">
-            <Feature icon={<Zap className="text-blue-400" />} title="Sub-millisecond Latency" desc="Engineered for high-concurrency AI agent telemetry." />
-            <Feature icon={<ShieldCheck className="text-green-400" />} title="Enterprise Security" desc="SHA-256 key hashing and multi-tenant isolation." />
-            <Feature icon={<Globe className="text-purple-400" />} title="Hyperlocal Insights" desc="Trace produce, voice, and actions across the globe." />
+          <div className="space-y-8">
+            <Feature icon={<Zap className="text-blue-400 w-6 h-6" />} title="Sub-millisecond Latency" desc="Engineered for high-concurrency AI agent telemetry." />
+            <Feature icon={<ShieldCheck className="text-green-400 w-6 h-6" />} title="Enterprise Security" desc="SHA-256 key hashing and multi-tenant isolation." />
+            <Feature icon={<Globe className="text-purple-400 w-6 h-6" />} title="Hyperlocal Insights" desc="Trace produce, voice, and actions across the globe." />
           </div>
         </div>
-        <p className="text-slate-400 text-sm">© 2026 AX Analytics Inc. Built for Production.</p>
+        <p className="text-slate-400 text-sm font-medium">© 2026 AX Analytics Inc. Built for Production.</p>
       </div>
 
       {/* Right Side: Auth Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md space-y-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Sign in</h2>
-            <p className="text-gray-500 mt-2">Enter your credentials to access your workspace.</p>
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Sign in</h2>
+            <p className="text-slate-500 mt-2">Enter your credentials to access your workspace.</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {errors.root && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-md">
-                {errors.root.message}
+              <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex gap-3 items-start">
+                <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <p className="font-medium">{errors.root.message}</p>
               </div>
             )}
 
-            <InputGroup<LoginInput> 
-              label="Work Email" 
-              name="email" 
-              register={register} 
-              error={errors.email?.message} 
-              placeholder="name@company.com" 
-            />
-            <InputGroup<LoginInput> 
-              label="Password" 
-              name="password" 
-              type="password" 
-              register={register} 
-              error={errors.password?.message} 
-              placeholder="••••••••" 
-            />
+            <div className="space-y-4">
+                <Input<LoginInput> 
+                label="Work Email" 
+                name="email" 
+                register={register} 
+                error={errors.email?.message} 
+                placeholder="name@company.com" 
+                autoFocus
+                />
+                <Input<LoginInput> 
+                label="Password" 
+                name="password" 
+                type="password" 
+                register={register} 
+                error={errors.password?.message} 
+                placeholder="••••••••" 
+                />
+            </div>
             
-            <button 
-              disabled={isSubmitting}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50 mt-2"
-            >
-              {isSubmitting ? "Signing in..." : "Sign in"}
-            </button>
+            <div className="pt-2">
+                <Button isLoading={isSubmitting} variant="primary">
+                Sign in
+                </Button>
+            </div>
 
-            {/* Link to Registration */}
-            <p className="text-center text-sm text-slate-500 mt-6">
+            <p className="text-center text-sm text-slate-500 pt-4">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+              <Link href="/register" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-all">
                 Create one
               </Link>
             </p>
@@ -106,48 +116,15 @@ export default function LoginPage() {
   );
 }
 
-interface FeatureProps {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-}
-
-function Feature({ icon, title, desc }: FeatureProps) {
+// Extracted internal feature component - keep this here as it's specific to the splash screens
+function Feature({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string; }) {
   return (
     <div className="flex gap-4">
-      <div className="mt-1">{icon}</div>
+      <div className="mt-1 bg-slate-800/50 p-2 rounded-lg border border-slate-700/50 h-fit">{icon}</div>
       <div>
-        <h3 className="font-semibold text-lg">{title}</h3>
-        <p className="text-slate-400 text-sm">{desc}</p>
+        <h3 className="font-semibold text-lg text-slate-100">{title}</h3>
+        <p className="text-slate-400 text-sm leading-relaxed mt-1">{desc}</p>
       </div>
-    </div>
-  );
-}
-
-interface InputGroupProps<T extends FieldValues> {
-  label: string;
-  name: Path<T>;
-  register: UseFormRegister<T>;
-  error?: string;
-  type?: string;
-  placeholder?: string;
-}
-
-function InputGroup<T extends FieldValues>({ 
-  label, name, register, error, type = "text", placeholder 
-}: InputGroupProps<T>) {
-  return (
-    <div className="space-y-1">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <input 
-        type={type}
-        placeholder={placeholder}
-        {...register(name)}
-        className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none transition ${
-          error ? 'border-red-500' : 'border-gray-300'
-        }`}
-      />
-      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }
