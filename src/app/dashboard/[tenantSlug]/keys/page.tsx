@@ -94,13 +94,13 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantSlug: 
                     <td className="px-6 py-4">{new Date(key.created_at).toLocaleDateString()}</td>
                     <td className="px-6 py-4">{key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'}</td>
                     <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight border ${
                         key.status === 'active' 
-                        ? 'bg-green-50 text-green-700 border-green-200' 
-                        : 'bg-red-50 text-red-700 border-red-200'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60' 
+                        : 'bg-rose-50 text-rose-700 border-rose-200/60'
                     }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${key.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></span> 
-                        {key.status.charAt(0).toUpperCase() + key.status.slice(1)}
+                        <span className={`w-1 h-1 rounded-full ${key.status === 'active' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span> 
+                        {key.status.toUpperCase()}
                     </span>
                     </td>
                     <td className="px-6 py-4 text-right">

@@ -7,8 +7,8 @@ export default function DashboardLayout({
 }) {
   return (
     <div>
-      <header>Dashboard Header</header>
-      <aside>Sidebar</aside>
+      {/* <header>Dashboard Header</header>
+      <aside>Sidebar</aside> */}
       <main>{children}</main>
     </div>
   );

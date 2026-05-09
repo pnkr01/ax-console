@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-// 1. IMPORT LogOut icon
 import { Activity, LayoutDashboard, Key, Users, Settings, Filter, LogOut } from "lucide-react"; 
 import clsx from "clsx";
-// 2. IMPORT your API client
 import apiClient from "@/core/api/client"; 
 
 interface SidebarProps {
@@ -23,12 +21,9 @@ export function Sidebar({ tenantSlug }: SidebarProps) {
     { name: "Settings", href: `/dashboard/${tenantSlug}/settings`, icon: Settings },
   ];
 
-  // 3. ADD the logout handler
   const handleLogout = async () => {
     try {
-      // Calls the Go backend to destroy the HttpOnly cookie
       await apiClient.post("/auth/logout");
-      // Hard redirect to the login page so Next.js Middleware registers the change
       window.location.assign("/login");
     } catch (error) {
       console.error("Logout failed", error);
@@ -36,16 +31,18 @@ export function Sidebar({ tenantSlug }: SidebarProps) {
   };
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-800">
+    <aside className="w-64 bg-[#0a0a0b] text-zinc-400 flex flex-col h-full border-r border-white/5 relative z-20">
       {/* Brand Header */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950 shrink-0">
-        <Activity className="w-6 h-6 text-blue-500 mr-2 shrink-0" />
-        <span className="font-bold text-lg tracking-wider text-white">AX ANALYTICS</span>
+      <div className="h-16 flex items-center px-6 border-b border-white/5 shrink-0">
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+          <Activity className="w-5 h-5 text-white" />
+        </div>
+        <span className="font-bold text-[15px] tracking-wide text-zinc-100">AX Analytics</span>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-2">
+      <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto custom-scrollbar">
+        <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-4 px-3">
           Workspace
         </div>
         {navItems.map((item) => {
@@ -57,37 +54,40 @@ export function Sidebar({ tenantSlug }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={clsx(
-                "flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                "flex items-center px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group",
                 isActive 
-                  ? "bg-blue-600 text-white" 
-                  : "hover:bg-slate-800 hover:text-white"
+                  ? "bg-white/10 text-zinc-100" 
+                  : "hover:bg-white/5 hover:text-zinc-200"
               )}
             >
-              <Icon className={clsx("w-5 h-5 mr-3 shrink-0", isActive ? "text-blue-200" : "text-slate-400")} />
+              <Icon className={clsx("w-[18px] h-[18px] mr-3 shrink-0 transition-colors", isActive ? "text-zinc-100" : "text-zinc-500 group-hover:text-zinc-300")} />
               {item.name}
             </Link>
           );
         })}
       </nav>
 
-      {/* 4. ADD Logout Button right above the footer */}
-      <div className="px-4 pb-4">
+      {/* Footer Actions */}
+      <div className="px-3 pb-3">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+          className="w-full flex items-center px-3 py-2 rounded-xl text-sm font-medium text-zinc-500 hover:bg-red-500/10 hover:text-red-400 transition-colors"
         >
-          <LogOut className="w-5 h-5 mr-3 shrink-0" />
+          <LogOut className="w-[18px] h-[18px] mr-3 shrink-0" />
           Sign Out
         </button>
       </div>
 
       {/* Tenant Context Footer */}
-      <div className="p-4 border-t border-slate-800 bg-slate-950 shrink-0">
-        <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Current Tenant</p>
-        <p className="text-sm font-medium text-white truncate" title={tenantSlug}>{tenantSlug}</p>
-        <div className="flex items-center mt-2">
-          <span className="w-2 h-2 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_rgba(34,197,94,0.8)] shrink-0"></span>
-          <span className="text-xs text-slate-400">System Operational</span>
+      <div className="p-4 border-t border-white/5 shrink-0 bg-white/[0.02]">
+        <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1 font-semibold">Current Tenant</p>
+        <p className="text-sm font-medium text-zinc-200 truncate">{tenantSlug}</p>
+        <div className="flex items-center mt-2.5">
+          <div className="relative flex items-center justify-center w-2 h-2 mr-2">
+            <span className="absolute inline-flex w-full h-full rounded-full opacity-75 bg-emerald-500 animate-ping"></span>
+            <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          </div>
+          <span className="text-xs text-zinc-400">System Operational</span>
         </div>
       </div>
     </aside>

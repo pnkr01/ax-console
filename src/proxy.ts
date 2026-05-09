@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 // Added /onboarding to protected routes implicitly by not making it public
 const publicRoutes = ['/login', '/register', '/onboarding/splash'];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const session = req.cookies.get('AX_SESSION');
   const isPublicRoute = publicRoutes.some(path => req.nextUrl.pathname.startsWith(path));
   

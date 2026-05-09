@@ -1,28 +1,30 @@
 import { ReactNode } from "react";
-import { Sidebar } from "@/features/dashboard/components/Sidebar"; // Adjust path if needed
-import { Header } from "@/features/dashboard/components/Header";   // Adjust path if needed
+import { Sidebar } from "@/features/dashboard/components/Sidebar";
+import { Header } from "@/features/dashboard/components/Header";
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-  // Next.js 15 Rule: params is a Promise
-  params: Promise<{ tenantSlug: string }>; 
-}
-
-export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  // Await the params before extracting the slug
-  const resolvedParams = await params;
-  const tenantSlug = resolvedParams.tenantSlug;
+export default async function DashboardLayout({ 
+  children, 
+  params 
+}: { 
+  children: ReactNode; 
+  params: Promise<{ tenantSlug: string }> 
+}) {
+  const { tenantSlug } = await params;
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
-      {/* Pass the properly resolved string to the Sidebar */}
+    <div className="flex h-screen w-full bg-zinc-50/50 overflow-hidden">
+      {/* Fixed Sidebar */}
       <Sidebar tenantSlug={tenantSlug} />
 
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        {/* Header stays at the top */}
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
+        {/* Content area with internal padding and max-width for readability */}
+        <main className="flex-1 overflow-y-auto px-10 py-8 scroll-smooth">
+          <div className="max-w-[1400px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>
